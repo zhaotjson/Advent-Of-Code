@@ -28,6 +28,41 @@ bool searchXMAS(const vector< vector<char> >& charArray, int row, int col, int r
     return true; 
 }
 
+
+bool searchX_MAS(const vector< vector<char> >& charArray, int row, int col){
+    int nRows = charArray.size();
+    int nCols = charArray[0].size();
+
+    if (row == 0 || col == 0 || row == nRows - 1 || col == nCols - 1) {
+        return false;
+    }
+
+    if(charArray[row - 1][col - 1] == 'M' && charArray[row + 1][col + 1] == 'S'){
+
+        if(charArray[row + 1][col - 1] == 'M' && charArray[row - 1][col + 1] == 'S'){
+            return true;
+        }
+        else if(charArray[row + 1][col - 1] == 'S' && charArray[row - 1][col + 1] == 'M'){
+            return true;
+        }
+    }
+    else if(charArray[row - 1][col - 1] == 'S' && charArray[row + 1][col + 1] == 'M'){
+
+        if(charArray[row + 1][col - 1] == 'M' && charArray[row - 1][col + 1] == 'S'){
+            return true;
+        }
+        else if(charArray[row + 1][col - 1] == 'S' && charArray[row - 1][col + 1] == 'M'){
+            return true;
+        }
+    }
+    
+    return false;
+
+
+}
+
+
+
 int main() {
     ifstream inputFile("day4.txt");
     if (!inputFile) {
@@ -81,7 +116,37 @@ int main() {
         }
     }
 
-    cout << "Found " << count << endl;
+    cout << "XMAS Found " << count << endl;
+
+
+
+
+
+    //Part Two
+
+    int X_MasCount = 0;
+
+    for (int row = 0; row < nRows; row++) {
+        for (int col = 0; col < nCols; col++) {
+            if (charArray[row][col] == 'A') { 
+
+                if (searchX_MAS(charArray, row, col)) {
+                    X_MasCount++;
+                }
+            }
+        }
+    }
+
+
+    cout << "X-MAS Found " << X_MasCount << endl;
 
     return 0;
 }
+
+
+
+//Part 1 Answer: 2358
+
+//Part 2 Answer: 1737
+
+
