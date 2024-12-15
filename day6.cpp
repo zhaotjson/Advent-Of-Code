@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <set>
 using namespace std;
 
 
@@ -11,6 +12,18 @@ const int rightD = 1;
 const int down = 2;
 const int leftD = 3;
 
+
+
+void resetArray(vector<vector<char>>& charArray) {
+    for (int r = 0; r < charArray.size(); r++) {
+        for (int c = 0; c < charArray[0].size(); c++) {
+            if (charArray[r][c] == '^' || charArray[r][c] == '>' || 
+                charArray[r][c] == 'v' || charArray[r][c] == '<' || charArray[r][c] == 'X') {
+                charArray[r][c] = '.';
+            }
+        }
+    }
+}
 
 
 vector<vector<char>> read2DArrayFromFile(const string& filename) {
@@ -141,6 +154,93 @@ int numX(const vector<vector<char>>& charArray) {
 
 
 
+
+
+
+//Part 2
+
+char getDirectionChar(int direction) {
+    switch(direction) {
+        case up: return '^';
+        case rightD: return '>';
+        case down: return 'v';
+        case leftD: return '<';
+        default: return '.';
+    }
+}
+bool parseWithDirectionalMarks(vector<vector<char>>& charArray, pair<int, int> startCoord) {
+    int row = startCoord.first;
+    int col = startCoord.second;
+    int direction = up;
+    int turnsInPlace = 0;
+    int steps = 0;
+    const int MAX_STEPS = 10000000;
+
+    while (steps < MAX_STEPS) {
+        steps++;
+        
+
+        charArray[row][col] = getDirectionChar(direction);
+
+
+        int nextRow = row;
+        int nextCol = col;
+        switch (direction) {
+            case up: nextRow--; break;
+            case rightD: nextCol++; break;
+            case down: nextRow++; break;
+            case leftD: nextCol--; break;
+        }
+
+
+        if (nextRow < 0 || nextRow >= charArray.size() || 
+            nextCol < 0 || nextCol >= charArray[0].size()) {
+            return false;
+        }
+
+
+        if (charArray[nextRow][nextCol] == getDirectionChar(direction)) {
+            return true;
+        }
+
+
+        if (charArray[nextRow][nextCol] == '#') {
+            direction = (direction + 1) % 4;
+            turnsInPlace++;
+            if (turnsInPlace >= 4) {
+                return false;
+            }
+            continue;
+        }
+
+        turnsInPlace = 0;
+        row = nextRow;
+        col = nextCol;
+    }
+    
+    cout << "Max steps reached at position (" << row << "," << col << ")" << endl;
+    return true; 
+}
+
+int findValidObstacles(vector<vector<char>>& charArray, pair<int, int> startCoord) {
+    int count = 0;
+    for (int r = 0; r < charArray.size(); r++) {
+        for (int c = 0; c < charArray[0].size(); c++) {
+            if (charArray[r][c] == '.' && (r != startCoord.first || c != startCoord.second)) {
+                resetArray(charArray);
+                vector<vector<char>> testArray = charArray;
+                testArray[r][c] = '#';
+                if (parseWithDirectionalMarks(testArray, startCoord)) {
+                    count++;
+                }
+            }
+        }
+    }
+    return count;
+}
+
+
+
 int main() {
 
     int currDirec = 0;
@@ -166,10 +266,14 @@ int main() {
 
     parseAndReplace(charArray, currCoord, currDirec);
 
-    print2DArray(charArray);
+    //print2DArray(charArray);
 
 
     cout << numX(charArray) << endl;
+
+    resetArray(charArray);
+
+    cout << findValidObstacles(charArray, currCoord) << endl;
 
 
     return 0;
@@ -179,4 +283,4 @@ int main() {
 
 // Part 1 Answer: 5564
 
-// Part 2 Answer:
+// Part 2 Answer: 1976
