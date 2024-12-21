@@ -55,30 +55,50 @@ vector<string> simulateFileMovement(const string& initialMap) {
     steps.push_back(currentMap);
     
     bool moved;
+    bool terminalPositionFound = false;
+    
     do {
         moved = false;
         // Find rightmost file block
-        for (int i = currentMap.length() - 1; i >= 0 && !moved; i--) {
+        for (int i = currentMap.length() - 1; i >= 0 && !terminalPositionFound; i--) {
             if (isdigit(currentMap[i])) {
                 // Find leftmost free space
                 for (int j = 0; j < i; j++) {
                     if (currentMap[j] == '.') {
-                        // Move the block
+                        cout << "i: " << i << " j: " << j << endl;
+                        bool hasDigitBefore = false;
+                        for (int k = 0; k < j; k++) {
+                            if (isdigit(currentMap[k])) {
+                                hasDigitBefore = true;
+                                break;
+                            }
+                        }
+                        
+                        // If no digits before this position, we've found a terminal state
+                        if (!hasDigitBefore) {
+                            terminalPositionFound = true;
+                            moved = false;
+                            break;
+                        }
+                        
+                        // Valid move found
                         currentMap[j] = currentMap[i];
                         currentMap[i] = '.';
                         moved = true;
+                        cout << "Moved" << endl;
                         steps.push_back(currentMap);
                         break;
                     }
                 }
+                if (terminalPositionFound) break;
             }
         }
-    } while (moved);
+
+        cout << moved << endl;
+    } while (moved && !terminalPositionFound);
     
     return steps;
 }
-
-
 
 long long calculateChecksum(const string& finalMap) {
     long long checksum = 0;
@@ -113,25 +133,26 @@ string readInputFromFile(const string& filename) {
 
 int main() {
     string filename = "day9.txt";
+    cout << "Reading input file..." << endl;
     string input = readInputFromFile(filename);
     
     if (input.empty()) {
         cerr << "No data found in file" << endl;
         return 1;
     }
+    cout << "Input read: " << input << endl;
     
+    cout << "Processing disk map..." << endl;
     string initialMap = processDiskMap(input);
-    cout << "Initial map: " << initialMap << endl << endl;
+    cout << "Initial map: " << initialMap << endl;
     
+    cout << "Simulating file movement..." << endl;
     vector<string> steps = simulateFileMovement(initialMap);
+    cout << "Final map: " << steps.back() << endl;
     
-    cout << "Movement steps:" << endl;
-    for (const auto& step : steps) {
-        cout << step << endl;
-    }
-    
-    cout << "\nChecksum: " << calculateChecksum(steps.back()) << endl;
+    cout << "Calculating checksum..." << endl;
+    long long checksum = calculateChecksum(steps.back());
+    cout << "Final checksum: " << checksum << endl;
     
     return 0;
 }
-
